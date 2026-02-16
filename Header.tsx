@@ -32,8 +32,7 @@ const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-md">
-      {/* Barra superior negra idéntica a la referencia */}
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="bg-black text-white py-2 px-4 text-[10px] md:text-xs border-b border-red-600/30">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
@@ -41,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({
               <Phone size={12} className="text-red-600" /> +56 9 6312 1125
             </a>
             <span className="hidden md:flex items-center gap-2 text-slate-300 font-bold uppercase tracking-widest">
-              <MapPin size={12} className="text-red-600" /> Iquique - Recinto Zofri
+              <MapPin size={12} className="text-red-600" /> Iquique - Zofri
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -53,28 +52,27 @@ const Header: React.FC<HeaderProps> = ({
               {isAdminMode ? 'MODO EDICIÓN ACTIVO' : 'ACCESO PRIVADO'}
             </button>
             <div className="font-black uppercase tracking-[0.2em] text-red-600 animate-pulse hidden sm:block">
-              DESPACHOS A TODO CHILE 🇨🇱
+              Despachos a todo Chile 🇨🇱
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
       <div className="container mx-auto px-4 py-4 md:py-6 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center justify-between w-full md:w-auto">
           <div 
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onNavigate('tienda')}
           >
-            <div className="w-14 h-14 bg-black rounded-xl flex flex-col items-center justify-center shadow-2xl group-hover:bg-red-600 transition-all duration-300 transform group-hover:rotate-2 border-b-4 border-red-700">
-              <span className="text-white font-black text-xs italic leading-none">AUTO</span>
-              <span className="text-red-600 font-black text-[10px] italic leading-none group-hover:text-white">MALL</span>
+            <div className="w-12 h-12 bg-black rounded-xl flex flex-col items-center justify-center shadow-lg group-hover:bg-red-600 transition-all duration-300 transform group-hover:rotate-3">
+              <span className="text-white font-black text-[10px] italic leading-none">AM</span>
+              <span className="text-red-600 font-black text-[9px] italic leading-none group-hover:text-white">ZOFRI</span>
             </div>
             <div className="flex flex-col">
               <h1 className="text-2xl md:text-3xl font-black italic tracking-tighter leading-none group-hover:text-red-600 transition-colors uppercase">
                 AUTO <span className="text-red-600">MALL</span>
               </h1>
-              <span className="text-[9px] md:text-[10px] font-black tracking-[0.3em] text-slate-400 mt-0.5 uppercase">MOTORES Y REPUESTOS</span>
+              <span className="text-[9px] md:text-[10px] font-black tracking-[0.25em] text-slate-400 mt-0.5 uppercase">MOTORES ZOFRI</span>
             </div>
           </div>
           
@@ -83,27 +81,26 @@ const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        {/* Buscador central */}
         <div className="relative w-full md:max-w-md lg:max-w-xl">
           <input
             type="text"
-            placeholder="Buscar por motor, marca o código..."
+            placeholder="Busca motores, marcas o SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border-2 border-slate-100 focus:border-red-600 rounded-2xl py-3.5 px-6 pl-14 focus:ring-4 focus:ring-red-50 outline-none transition-all placeholder:text-slate-300 font-bold text-sm shadow-inner"
+            className="w-full bg-slate-50 border-2 border-slate-100 focus:border-red-600 rounded-2xl py-3.5 px-6 pl-14 focus:ring-4 focus:ring-red-50 outline-none transition-all placeholder:text-slate-300 font-bold text-sm"
           />
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-red-600" size={22} />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={22} />
         </div>
 
         <div className="flex items-center gap-4">
           <button className="hidden lg:flex items-center gap-2 text-slate-700 hover:text-red-600 transition-all font-black text-xs uppercase tracking-widest px-4 py-2 rounded-xl">
             <User size={18} />
-            CUENTA
+            Mi Cuenta
           </button>
           
           <button 
             onClick={onCartClick}
-            className="relative p-4 bg-black text-white rounded-2xl hover:bg-red-600 transition-all shadow-xl group hover:-translate-y-0.5"
+            className="relative p-3.5 bg-black text-white rounded-2xl hover:bg-red-600 transition-all shadow-xl group"
           >
             <ShoppingCart size={24} className="group-hover:scale-110 transition-transform" />
             {cartCount > 0 && (
@@ -115,20 +112,19 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Navegación idéntica a Max Motores */}
       <nav className="bg-white border-t border-slate-100 overflow-x-auto no-scrollbar">
-        <div className="container mx-auto px-4 flex whitespace-nowrap justify-center gap-4">
+        <div className="container mx-auto px-4 flex whitespace-nowrap justify-center gap-2">
           {navItems.map((item) => (
             <button 
               key={item.label} 
               onClick={() => onNavigate(item.view)}
-              className={`px-6 py-5 text-[11px] font-black tracking-[0.15em] transition-all relative group uppercase ${
+              className={`px-6 py-4 text-[11px] font-black tracking-[0.1em] transition-all relative group uppercase ${
                 activeView === item.view ? 'text-red-600' : 'text-slate-600 hover:text-red-600'
               }`}
             >
               {item.label}
-              <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-1.5 bg-red-600 transition-all duration-300 rounded-t-full ${
-                activeView === item.view ? 'w-full' : 'w-0 group-hover:w-1/2'
+              <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-1 bg-red-600 transition-all duration-300 rounded-t-full ${
+                activeView === item.view ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </button>
           ))}
