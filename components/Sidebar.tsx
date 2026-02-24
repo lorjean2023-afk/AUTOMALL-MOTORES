@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { motion } from 'motion/react';
 import { CATEGORIES } from '../constants';
 
 type SidebarProps = {
@@ -30,21 +31,25 @@ const Sidebar: React.FC<SidebarProps> = ({
         </h3>
         <ul className="space-y-1">
           <li>
-            <button
+            <motion.button
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedCategory('all')}
               className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === 'all' ? 'bg-red-600 text-white shadow-lg' : 'hover:bg-slate-50 text-slate-600'}`}
             >
               🚀 Todos los Productos
-            </button>
+            </motion.button>
           </li>
           {CATEGORIES.map((cat) => (
             <li key={cat.id}>
-              <button
+              <motion.button
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${selectedCategory === cat.id ? 'bg-red-600 text-white shadow-lg' : 'hover:bg-slate-50 text-slate-600'}`}
               >
                 <span className="mr-2 opacity-70">{cat.icon}</span> {cat.name}
-              </button>
+              </motion.button>
             </li>
           ))}
         </ul>
@@ -57,13 +62,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         </h3>
         <div className="grid grid-cols-2 gap-2">
           {brands.map((brand) => (
-            <button
+            <motion.button
               key={brand}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedBrand(brand)}
               className={`px-3 py-2 rounded-xl text-[10px] font-black border transition-all ${selectedBrand === brand ? 'bg-black border-black text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-red-300'}`}
             >
               {brand.toUpperCase()}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>

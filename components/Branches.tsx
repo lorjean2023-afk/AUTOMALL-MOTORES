@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Branch } from '../types';
-import { MapPin, Phone, ExternalLink, Globe, Edit3, Save } from 'lucide-react';
+import { MapPin, Phone, ExternalLink, Globe } from 'lucide-react';
 
 type BranchesProps = {
   branches: Branch[];

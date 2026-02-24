@@ -1,7 +1,9 @@
 
 import React, { useState, useRef } from 'react';
-import { X, ShoppingCart, ShieldCheck, ChevronLeft, ChevronRight, CheckCircle2, Package, Ruler, Loader2, UploadCloud, Camera } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, ShoppingCart, ShieldCheck, ChevronLeft, ChevronRight, Package, Loader2, Camera, Hash, Layers, Briefcase } from 'lucide-react';
 import { Product } from '../types';
+import { CATEGORIES } from '../constants';
 
 type ProductModalProps = {
   product: Product | null;
@@ -18,12 +20,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
   isAdminMode,
   onUpdateProduct
 }) => {
-  if (!product) return null;
-
   const [activeImg, setActiveImg] = useState(0);
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!product) return null;
   
   const imgList = Array.isArray(product.image) ? product.image : [product.image];
 
@@ -56,7 +58,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
           newImages.push(e.target?.result as string);
           processedCount++;
           if (processedCount === files.length || processedCount === 4) {
-            // Reemplazamos las imágenes por las nuevas subidas (máximo 4)
             onUpdateProduct({ ...product, image: newImages.slice(0, 4) });
             setIsLoading(false);
           }
@@ -75,9 +76,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 md:p-8">
-      <div className="absolute inset-0 bg-black/95 backdrop-blur-xl animate-in fade-in duration-300" onClick={onClose} />
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/95 backdrop-blur-xl" 
+        onClick={onClose} 
+      />
       
-      <div className="bg-white w-full max-w-6xl rounded-[40px] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative z-10 flex flex-col md:flex-row h-full max-h-[90vh] animate-in zoom-in-95 duration-300">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="bg-white w-full max-w-6xl rounded-[40px] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative z-10 flex flex-col md:flex-row h-full max-h-[90vh]"
+      >
         
         <button 
           onClick={onClose}
@@ -94,7 +106,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
             {isAdminMode && (
               <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/modal:opacity-100 bg-black/20 backdrop-blur-[2px] z-20 transition-all text-white font-black uppercase text-xs tracking-widest gap-2">
                 <Camera size={40} className="animate-bounce" />
-                Haz clic para subir fotos de la carpeta JAMPIER
+                Haz clic para subir fotos
               </div>
             )}
 
@@ -104,14 +116,19 @@ const ProductModal: React.FC<ProductModalProps> = ({
               </div>
             )}
             
-            <img 
-              key={`${product.id}-${activeImg}`}
-              src={getImgUrl(activeImg)} 
-              alt={product.nombre}
-              className={`w-full h-full object-contain transition-all duration-700 ${isLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'} hover:scale-105`}
-              onLoad={() => setIsLoading(false)}
-              onError={() => setImgErrors(prev => ({ ...prev, [activeImg]: true }))}
-            />
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={`${product.id}-${activeImg}`}
+                src={getImgUrl(activeImg)} 
+                alt={product.nombre}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="w-full h-full object-contain"
+                onLoad={() => setIsLoading(false)}
+                onError={() => setImgErrors(prev => ({ ...prev, [activeImg]: true }))}
+              />
+            </AnimatePresence>
             
             {imgList.length > 1 && (
               <>
@@ -155,10 +172,45 @@ const ProductModal: React.FC<ProductModalProps> = ({
         <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto no-scrollbar flex flex-col bg-white">
           <div className="space-y-8">
             <div className="flex items-center gap-3">
-              <span className="bg-red-600 text-white text-[10px] font-black px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-lg">
-                {product.estado}
-              </span>
-              <span className="text-slate-300 font-black text-xs uppercase tracking-tighter">SKU: {product.sku || product.id}</span>
+              {isAdminMode ? (
+                <div className="flex items-center gap-2">
+                  <select
+                    className="bg-yellow-50 border-2 border-yellow-200 rounded-lg px-2 py-1 text-[10px] font-black uppercase outline-none"
+                    value={product.estado}
+                    onChange={(e) => onUpdateProduct?.({ ...product, estado: e.target.value as Product['estado'] })}
+                  >
+                    <option value="Nuevo">Nuevo</option>
+                    <option value="Usado">Usado</option>
+                    <option value="Reacondicionado">Reacondicionado</option>
+                  </select>
+                  <div className="flex items-center gap-1 bg-yellow-50 border-2 border-yellow-200 rounded-lg px-2 py-1">
+                    <input 
+                      type="checkbox" 
+                      id="oferta"
+                      checked={product.oferta}
+                      onChange={(e) => onUpdateProduct?.({ ...product, oferta: e.target.checked })}
+                    />
+                    <label htmlFor="oferta" className="text-[10px] font-black uppercase">Oferta</label>
+                  </div>
+                </div>
+              ) : (
+                <span className="bg-red-600 text-white text-[10px] font-black px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-lg">
+                  {product.estado}
+                </span>
+              )}
+              {isAdminMode ? (
+                <div className="flex items-center gap-1 bg-yellow-50 border-2 border-yellow-200 rounded-lg px-2 py-1">
+                  <Hash size={12} className="text-slate-400" />
+                  <input
+                    className="bg-transparent text-[10px] font-black uppercase outline-none w-24"
+                    value={product.sku || ''}
+                    placeholder="SKU"
+                    onChange={(e) => onUpdateProduct?.({ ...product, sku: e.target.value })}
+                  />
+                </div>
+              ) : (
+                <span className="text-slate-300 font-black text-xs uppercase tracking-tighter">SKU: {product.sku || product.id}</span>
+              )}
             </div>
 
             {isAdminMode ? (
@@ -179,17 +231,40 @@ const ProductModal: React.FC<ProductModalProps> = ({
             <div className="flex flex-col">
               <span className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Inversión Garantizada</span>
               {isAdminMode ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-black text-slate-400">$</span>
-                  <input
-                    type="number"
-                    className="w-full bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 text-3xl font-black text-red-600 outline-none"
-                    value={product.precio}
-                    onChange={(e) => onUpdateProduct?.({ ...product, precio: Number(e.target.value) })}
-                  />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-black text-slate-400">$</span>
+                    <input
+                      type="number"
+                      className="w-full bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 text-3xl font-black text-red-600 outline-none"
+                      value={product.precio}
+                      onChange={(e) => onUpdateProduct?.({ ...product, precio: Number(e.target.value) })}
+                    />
+                  </div>
+                  {product.oferta && (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-black uppercase text-slate-400">Precio Original (Antes de Oferta)</label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-black text-slate-400">$</span>
+                        <input
+                          type="number"
+                          className="w-full bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-3 text-xl font-black text-slate-400 line-through outline-none"
+                          value={product.originalPrice || 0}
+                          onChange={(e) => onUpdateProduct?.({ ...product, originalPrice: Number(e.target.value) })}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <span className="text-5xl font-black text-red-600 tracking-tighter">{formattedPrice}</span>
+                <div className="flex flex-col">
+                  {product.oferta && product.originalPrice && (
+                    <span className="text-xl font-black text-slate-300 line-through tracking-tighter">
+                      {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(product.originalPrice)}
+                    </span>
+                  )}
+                  <span className="text-5xl font-black text-red-600 tracking-tighter">{formattedPrice}</span>
+                </div>
               )}
             </div>
 
@@ -198,29 +273,78 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 <div className="w-4 h-[2px] bg-red-600"></div> Especificaciones Técnicas
               </h4>
               <div className="grid grid-cols-2 gap-6">
-                <div className="flex items-center gap-3 text-slate-700">
-                  <div className="bg-red-50 p-2 rounded-xl text-red-600">
-                    <Package size={20} />
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="bg-red-50 p-2 rounded-xl text-red-600">
+                      <Package size={20} />
+                    </div>
+                    {isAdminMode ? (
+                      <div className="flex flex-col">
+                        <label className="text-[8px] font-black uppercase text-slate-400">Stock</label>
+                        <input
+                          type="number"
+                          className="bg-yellow-50 border border-yellow-200 rounded px-2 py-0.5 text-xs font-black outline-none w-20"
+                          value={product.stock}
+                          onChange={(e) => onUpdateProduct?.({ ...product, stock: Number(e.target.value) })}
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-xs font-black uppercase tracking-tighter">Stock: {product.stock} Unids</span>
+                    )}
                   </div>
-                  <span className="text-xs font-black uppercase tracking-tighter">Stock: {product.stock} Unids</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-700">
-                  <div className="bg-red-50 p-2 rounded-xl text-red-600">
-                    <Ruler size={20} />
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="bg-red-50 p-2 rounded-xl text-red-600">
+                      <Briefcase size={20} />
+                    </div>
+                    {isAdminMode ? (
+                      <div className="flex flex-col">
+                        <label className="text-[8px] font-black uppercase text-slate-400">Marca</label>
+                        <input
+                          className="bg-yellow-50 border border-yellow-200 rounded px-2 py-0.5 text-xs font-black outline-none w-24"
+                          value={product.marca}
+                          onChange={(e) => onUpdateProduct?.({ ...product, marca: e.target.value })}
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-xs font-black uppercase tracking-tighter">Marca: {product.marca}</span>
+                    )}
                   </div>
-                  <span className="text-xs font-black uppercase tracking-tighter">Marca: {product.marca}</span>
                 </div>
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="bg-red-50 p-2 rounded-xl text-red-600">
+                      <Layers size={20} />
+                    </div>
+                    {isAdminMode ? (
+                      <div className="flex flex-col">
+                        <label className="text-[8px] font-black uppercase text-slate-400">Categoría</label>
+                        <select
+                          className="bg-yellow-50 border border-yellow-200 rounded px-2 py-0.5 text-xs font-black outline-none w-32"
+                          value={product.category}
+                          onChange={(e) => onUpdateProduct?.({ ...product, category: e.target.value })}
+                        >
+                          {CATEGORIES.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-black uppercase tracking-tighter">
+                        Cat: {CATEGORIES.find(c => c.id === product.category)?.name || 'General'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3 text-slate-700">
                   <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600">
                     <ShieldCheck size={20} />
                   </div>
                   <span className="text-xs font-black uppercase tracking-tighter">Garantía Real</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-700">
-                  <div className="bg-blue-50 p-2 rounded-xl text-blue-600">
-                    <CheckCircle2 size={20} />
-                  </div>
-                  <span className="text-xs font-black uppercase tracking-tighter">Importado</span>
                 </div>
               </div>
             </div>
@@ -243,19 +367,21 @@ const ProductModal: React.FC<ProductModalProps> = ({
           </div>
 
           <div className="mt-auto pt-10 space-y-4">
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => { onAddToCart(product); onClose(); }}
-              className="w-full bg-black text-[#D4AF37] py-6 rounded-3xl font-black text-sm tracking-[0.2em] hover:bg-red-600 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-4 group active:scale-95"
+              className="w-full bg-black text-[#D4AF37] py-6 rounded-3xl font-black text-sm tracking-[0.2em] hover:bg-red-600 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-4 group"
             >
               <ShoppingCart size={22} className="group-hover:scale-110 transition-transform" />
               AGREGAR AL PEDIDO
-            </button>
+            </motion.button>
             <p className="text-center text-[9px] text-slate-300 font-black uppercase tracking-[0.3em]">
               Transacción 100% Protegida por Auto Mall
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

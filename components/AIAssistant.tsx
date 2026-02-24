@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, X, Bot, Zap, Truck, ShieldCheck, ShoppingCart } from 'lucide-react';
+import { Send, X, Bot, Zap, Truck, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { getMechanicalAdvice } from '../services/geminiService';
 
 const AIAssistant: React.FC = () => {
@@ -40,7 +40,8 @@ const AIAssistant: React.FC = () => {
     try {
       const advice = await getMechanicalAdvice(userMsg);
       setMessages(prev => [...prev, { role: 'assistant', content: advice || 'Error al procesar consulta.' }]);
-    } catch (err) {
+    } catch (error) {
+      console.error('AI Error:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Tenemos una alta demanda. ¿Podrías intentar nuevamente en unos segundos?' }]);
     } finally {
       setIsLoading(false);

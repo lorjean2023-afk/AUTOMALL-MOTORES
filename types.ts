@@ -40,3 +40,11 @@ export type Vendor = {
   role: string;
   image: string;
 };
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  isGuest?: boolean;
+  avatar?: string;
+};

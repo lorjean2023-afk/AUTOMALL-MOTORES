@@ -1,6 +1,9 @@
 
 import React from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Search, Menu, Phone, MapPin, User, Lock, Unlock } from 'lucide-react';
+
+import { User as UserType } from '../types';
 
 type HeaderProps = {
   cartCount: number;
@@ -11,6 +14,8 @@ type HeaderProps = {
   onNavigate: (view: string) => void;
   isAdminMode: boolean;
   setIsAdminMode: (val: boolean) => void;
+  user: UserType | null;
+  onAuthClick: () => void;
 };
 
 const Header: React.FC<HeaderProps> = ({ 
@@ -21,7 +26,9 @@ const Header: React.FC<HeaderProps> = ({
   activeView, 
   onNavigate,
   isAdminMode,
-  setIsAdminMode
+  setIsAdminMode,
+  user,
+  onAuthClick
 }) => {
   const navItems = [
     { label: 'INICIO', view: 'tienda' },
@@ -62,7 +69,9 @@ const Header: React.FC<HeaderProps> = ({
       {/* Main Header */}
       <div className="container mx-auto px-4 py-4 md:py-6 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center justify-between w-full md:w-auto">
-          <div 
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onNavigate('tienda')}
           >
@@ -76,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({
               </h1>
               <span className="text-[9px] md:text-[10px] font-black tracking-[0.3em] text-slate-400 mt-0.5 uppercase">MOTORES Y REPUESTOS</span>
             </div>
-          </div>
+          </motion.div>
           
           <button className="md:hidden text-slate-700 p-2">
             <Menu size={32} />
@@ -96,22 +105,47 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="hidden lg:flex items-center gap-2 text-slate-700 hover:text-red-600 transition-all font-black text-xs uppercase tracking-widest px-4 py-2 rounded-xl">
-            <User size={18} />
-            CUENTA
+          <button 
+            onClick={onAuthClick}
+            className="hidden lg:flex items-center gap-2 text-slate-700 hover:text-red-600 transition-all font-black text-xs uppercase tracking-widest px-4 py-2 rounded-xl"
+          >
+            {user ? (
+              <>
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full" />
+                ) : (
+                  <User size={18} />
+                )}
+                <span className="max-w-[100px] truncate">{user.name}</span>
+              </>
+            ) : (
+              <>
+                <User size={18} />
+                CUENTA
+              </>
+            )}
           </button>
           
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onCartClick}
             className="relative p-4 bg-black text-white rounded-2xl hover:bg-red-600 transition-all shadow-xl group hover:-translate-y-0.5"
           >
             <ShoppingCart size={24} className="group-hover:scale-110 transition-transform" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-lg">
-                {cartCount}
-              </span>
-            )}
-          </button>
+            <AnimatePresence>
+              {cartCount > 0 && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-lg"
+                >
+                  {cartCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
       </div>
 
@@ -127,9 +161,12 @@ const Header: React.FC<HeaderProps> = ({
               }`}
             >
               {item.label}
-              <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-1.5 bg-red-600 transition-all duration-300 rounded-t-full ${
-                activeView === item.view ? 'w-full' : 'w-0 group-hover:w-1/2'
-              }`}></span>
+              <motion.span 
+                layoutId="nav-underline"
+                className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-1.5 bg-red-600 transition-all duration-300 rounded-t-full ${
+                  activeView === item.view ? 'w-full' : 'w-0 group-hover:w-1/2'
+                }`}
+              ></motion.span>
             </button>
           ))}
         </div>
